@@ -160,7 +160,7 @@ async function askAI(messages, { maxTokens = 700, system } = {}) {
   // If a Gemini key is present (set via window.__GEMINI_API_KEY__ — see setup notes),
   // use it. Otherwise fall back to the keyless Claude call, which is free automatically
   // when this file runs inside the Claude.ai chat/artifact preview.
- const geminiKey = import.meta.env.VITE_GEMINI_API_KEY || null;
+  const geminiKey = (typeof window !== "undefined" && window.__GEMINI_API_KEY__) || null;
 
   if (geminiKey) {
     const contents = messages.map((m) => ({
@@ -950,45 +950,127 @@ function AdminLogin({ onLogin, onBack }) {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [captcha, setCaptcha] = useState(false);
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 880);
+
+  useEffect(() => {
+    function onResize() { setIsMobile(window.innerWidth < 880); }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   function handleLogin() {
+    if (!email) { setError("Enter your email address."); return; }
     if (!captcha) { setError("Please confirm you're not a robot."); return; }
     setError("");
-    onLogin(email.split("@")[0] || "Admin");
+    setLoading(true);
+    // Demo console: any password is accepted — this simulates an auth call.
+    setTimeout(() => {
+      setLoading(false);
+      onLogin(email.split("@")[0] || "Admin");
+    }, 500);
   }
 
+  function onKeyDown(e) { if (e.key === "Enter") handleLogin(); }
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(135deg, ${T.primaryDark}, ${T.primary})`, padding: 20 }}>
+    <div style={{ minHeight: "100vh", display: "flex", background: T.cream }}>
       <style>{FONT_CSS}</style>
-      <div className="ss-fade-in" style={{ background: "#fff", borderRadius: 16, width: 380, maxWidth: "100%", padding: 30, boxShadow: "0 30px 60px rgba(0,0,0,0.3)" }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-          <div className="ss-seal" style={{ width: 50, height: 50, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}><Shield size={22} color="#fff" /></div>
-        </div>
-        <h2 className="ss-display" style={{ textAlign: "center", fontSize: 22, fontWeight: 600, marginBottom: 4 }}>Staff Sign In</h2>
-        <p style={{ textAlign: "center", fontSize: 12.5, color: T.sub, marginBottom: 22 }}>ShopSphere Admin Console</p>
-        <Field label="Email address">
-          <input style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Field>
-        <Field label="Password">
+
+      {/* Left / brand panel — hidden on narrow screens */}
+      {!isMobile && (
+        <div style={{
+          flex: "0 0 44%", position: "relative", overflow: "hidden",
+          background: `linear-gradient(150deg, ${T.primaryDark} 0%, ${T.primary} 55%, ${T.gold} 130%)`,
+          display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 44px", color: "#fff",
+        }}>
+          <div style={{ position: "absolute", inset: 0, opacity: 0.12, backgroundImage: "radial-gradient(circle at 20% 20%, #fff 0, transparent 45%), radial-gradient(circle at 85% 75%, #fff 0, transparent 40%)" }} />
+          <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <ShoppingBag size={19} color="#fff" />
+            </div>
+            <span className="ss-display" style={{ fontSize: 19, fontWeight: 600, letterSpacing: 0.2 }}>ShopSphere</span>
+          </div>
           <div style={{ position: "relative" }}>
-            <input type={showPw ? "text" : "password"} style={inputStyle} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Any password works in this demo" />
-            <button onClick={() => setShowPw((s) => !s)} style={{ position: "absolute", right: 10, top: 10, background: "none", border: "none", cursor: "pointer", color: T.sub }}>
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+            <h1 className="ss-display" style={{ fontSize: 34, fontWeight: 600, lineHeight: 1.25, marginBottom: 14, maxWidth: 380 }}>
+              Run your whole store from one clean console.
+            </h1>
+            <p style={{ fontSize: 14, opacity: 0.88, maxWidth: 340, lineHeight: 1.6 }}>
+              Products, orders, coupons, staff and live reporting — with an AI assistant that actually knows your data.
+            </p>
+            <div style={{ display: "flex", gap: 22, marginTop: 28 }}>
+              {[["Secure", ShieldCheck], ["Reliable", CheckCircle2], ["Modern", Sparkles]].map(([label, Icon]) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <Icon size={15} />
+                  <span style={{ fontSize: 12.5, fontWeight: 600 }}>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </Field>
-        <div onClick={() => setCaptcha((v) => !v)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", border: `1px solid ${T.hair}`, borderRadius: 10, background: T.cream, cursor: "pointer", marginBottom: 6 }}>
-          <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${captcha ? T.success : T.hair}`, background: captcha ? T.success : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            {captcha && <Check size={13} color="#fff" />}
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>I'm not a robot</span>
-          <ShieldCheck size={16} color={T.sub} />
+          <div style={{ position: "relative", fontSize: 11.5, opacity: 0.7 }}>© 2026 ShopSphere. All rights reserved.</div>
         </div>
-        {error && <div style={{ fontSize: 12, color: T.danger, marginBottom: 10 }}>{error}</div>}
-        <Btn variant="primary" size="lg" style={{ width: "100%", marginTop: 6 }} onClick={handleLogin}>Sign In</Btn>
-        <button onClick={onBack} className="ss-btn" style={{ width: "100%", background: "none", border: "none", color: T.sub, fontSize: 12.5, marginTop: 14, cursor: "pointer" }}>← Back to storefront</button>
-        <p style={{ fontSize: 10.5, color: T.sub, textAlign: "center", marginTop: 14 }}>Demo console — any email/password combination signs you in as Super Admin.</p>
+      )}
+
+      {/* Right / form panel */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div className="ss-fade-in" style={{ width: 400, maxWidth: "100%" }}>
+          {isMobile && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 22 }}>
+              <div className="ss-seal" style={{ width: 52, height: 52, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                <ShoppingBag size={22} color="#fff" />
+              </div>
+              <span className="ss-display" style={{ fontSize: 20, fontWeight: 600 }}>ShopSphere</span>
+            </div>
+          )}
+          <div style={{ background: "#fff", borderRadius: 18, padding: "34px 30px", boxShadow: "0 24px 60px -20px rgba(43,32,19,0.28)", border: `1px solid ${T.hair}` }}>
+            <h2 className="ss-display" style={{ fontSize: 23, fontWeight: 600, marginBottom: 4 }}>Welcome back</h2>
+            <p style={{ fontSize: 12.5, color: T.sub, marginBottom: 24 }}>Sign in to the ShopSphere admin console</p>
+
+            <Field label="Email address">
+              <input style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={onKeyDown} autoComplete="username" />
+            </Field>
+            <Field label="Password">
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPw ? "text" : "password"} style={{ ...inputStyle, paddingRight: 40 }} value={password}
+                  onChange={(e) => setPassword(e.target.value)} onKeyDown={onKeyDown}
+                  placeholder="Any password works in this demo" autoComplete="current-password"
+                />
+                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="Toggle password visibility"
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: T.sub, display: "flex" }}>
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </Field>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <label onClick={() => setRemember((v) => !v)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${remember ? T.primary : T.hair}`, background: remember ? T.primary : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {remember && <Check size={11} color="#fff" />}
+                </div>
+                <span style={{ fontSize: 12.5, color: T.sub, fontWeight: 500 }}>Remember me</span>
+              </label>
+              <span style={{ fontSize: 12.5, color: T.primary, fontWeight: 600, cursor: "pointer" }}>Forgot password?</span>
+            </div>
+
+            <div onClick={() => setCaptcha((v) => !v)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", border: `1px solid ${T.hair}`, borderRadius: 10, background: T.cream, cursor: "pointer", marginBottom: 6 }}>
+              <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${captcha ? T.success : T.hair}`, background: captcha ? T.success : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {captcha && <Check size={13} color="#fff" />}
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>I'm not a robot</span>
+              <ShieldCheck size={16} color={T.sub} />
+            </div>
+            {error && <div style={{ fontSize: 12, color: T.danger, marginBottom: 10, fontWeight: 600 }}>{error}</div>}
+
+            <Btn variant="primary" size="lg" style={{ width: "100%", marginTop: 6, justifyContent: "center" }} onClick={handleLogin} disabled={loading}>
+              {loading ? <><Loader2 size={16} className="ss-spin" /> Signing in…</> : "Sign In"}
+            </Btn>
+            <button onClick={onBack} className="ss-btn" style={{ width: "100%", background: "none", border: "none", color: T.sub, fontSize: 12.5, marginTop: 14, cursor: "pointer" }}>← Back to storefront</button>
+          </div>
+          <p style={{ fontSize: 10.5, color: T.sub, textAlign: "center", marginTop: 16 }}>Demo console — any email/password combination signs you in as Super Admin.</p>
+        </div>
       </div>
     </div>
   );
@@ -1361,8 +1443,41 @@ function StaffTab({ staff, setStaff, staffModal, setStaffModal, notify }) {
   );
 }
 
+function passwordStrength(pw) {
+  if (!pw) return { score: 0, label: "", color: T.hair, checks: {} };
+  const checks = {
+    length: pw.length >= 8,
+    upper: /[A-Z]/.test(pw),
+    lower: /[a-z]/.test(pw),
+    number: /[0-9]/.test(pw),
+    symbol: /[^A-Za-z0-9]/.test(pw),
+  };
+  const score = Object.values(checks).filter(Boolean).length;
+  const levels = [
+    { label: "Very weak", color: T.danger },
+    { label: "Weak", color: T.danger },
+    { label: "Fair", color: "#C97C1F" },
+    { label: "Good", color: T.gold },
+    { label: "Strong", color: T.success },
+    { label: "Very strong", color: T.success },
+  ];
+  return { score, ...levels[score], checks };
+}
+
 function StaffForm({ data, onSave }) {
-  const [f, setF] = useState(data);
+  const [f, setF] = useState({ ...data, password: "" });
+  const [showPw, setShowPw] = useState(false);
+  const strength = passwordStrength(f.password);
+  const passwordOk = strength.score >= 4;
+  const canSave = f.name && f.email && passwordOk;
+
+  const reqs = [
+    ["At least 8 characters", strength.checks.length],
+    ["Uppercase & lowercase letters", strength.checks.upper && strength.checks.lower],
+    ["A number", strength.checks.number],
+    ["A symbol (e.g. ! @ # $)", strength.checks.symbol],
+  ];
+
   return (
     <div>
       <Field label="Full name"><input style={inputStyle} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="e.g. Dr. Aminu Musa" /></Field>
@@ -1372,8 +1487,43 @@ function StaffForm({ data, onSave }) {
           {ROLE_NAMES.map((r) => <option key={r}>{r}</option>)}
         </select>
       </Field>
-      <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 14 }}>The selected role determines which admin modules this staff member can access (see Roles & Permissions).</p>
-      <Btn variant="primary" style={{ width: "100%" }} disabled={!f.name || !f.email} onClick={() => onSave(f)}>Create Staff Member</Btn>
+      <Field label="Set a password">
+        <div style={{ position: "relative" }}>
+          <input
+            type={showPw ? "text" : "password"} style={{ ...inputStyle, paddingRight: 40 }} value={f.password}
+            onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="Create a unique, strong password"
+          />
+          <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="Toggle password visibility"
+            style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: T.sub, display: "flex" }}>
+            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+      </Field>
+
+      {f.password && (
+        <div style={{ marginBottom: 14, marginTop: -8 }}>
+          <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < strength.score ? strength.color : T.hair, transition: "background .15s ease" }} />
+            ))}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: strength.color }}>{strength.label}</span>
+            {passwordOk && <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: T.success, fontWeight: 600 }}><CheckCircle2 size={12} /> Ready to use</span>}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 10px" }}>
+            {reqs.map(([label, met]) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: met ? T.success : T.sub }}>
+                {met ? <Check size={11} /> : <div style={{ width: 11, height: 1.5, background: T.hair, flexShrink: 0 }} />}
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 14 }}>The selected role determines which admin modules this staff member can access (see Roles & Permissions). Each account needs its own unique password — reusing one across staff isn't allowed.</p>
+      <Btn variant="primary" style={{ width: "100%" }} disabled={!canSave} onClick={() => onSave(f)}>Create Staff Member</Btn>
     </div>
   );
 }
