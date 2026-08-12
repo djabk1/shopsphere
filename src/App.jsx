@@ -63,6 +63,11 @@ const FONT_CSS = `
     .ss-admin-sidebar{ width:64px !important; }
     .ss-admin-sidebar-label{ display:none; }
     .ss-admin-content-pad{ padding:16px !important; }
+    .ss-chat-shell{ flex-direction:column !important; height:auto !important; }
+    .ss-chat-list{ width:100% !important; height:170px !important; }
+  }
+  @media (max-width: 480px){
+    .ss-hero-title{ font-size:30px !important; }
   }
   input[type=text]:focus, input[type=email]:focus, input[type=password]:focus, input[type=number]:focus, textarea:focus, select:focus{
     outline:none; box-shadow: 0 0 0 3px rgba(201,162,39,0.35); border-color:${T.primary} !important;
@@ -421,7 +426,7 @@ function Hero() {
           <div style={{ display: "inline-block", fontSize: 12, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", background: "rgba(255,255,255,0.16)", padding: "5px 12px", borderRadius: 999, marginBottom: 16 }}>
             New season stock just arrived
           </div>
-          <h1 className="ss-display" style={{ fontSize: 42, lineHeight: 1.08, fontWeight: 600, margin: "0 0 14px" }}>
+          <h1 className="ss-display ss-hero-title" style={{ fontSize: 42, lineHeight: 1.08, fontWeight: 600, margin: "0 0 14px" }}>
             Everything your day needs, one till, no queue.
           </h1>
           <p style={{ fontSize: 15.5, opacity: 0.92, maxWidth: 460, marginBottom: 22 }}>
@@ -827,9 +832,9 @@ function SupportChatWidget({ chats, setChats, notify }) {
   }
 
   return (
-    <div style={{ position: "fixed", bottom: 22, right: 22, zIndex: 90 }}>
+    <div style={{ position: "fixed", bottom: 16, right: 16, zIndex: 90 }}>
       {open && (
-        <div className="ss-fade-in" style={{ width: 300, height: 380, background: "#fff", borderRadius: 14, boxShadow: "0 20px 50px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", marginBottom: 12, border: `1px solid ${T.hair}`, overflow: "hidden" }}>
+        <div className="ss-fade-in" style={{ width: 300, maxWidth: "90vw", height: 380, maxHeight: "70vh", background: "#fff", borderRadius: 14, boxShadow: "0 20px 50px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", marginBottom: 12, border: `1px solid ${T.hair}`, overflow: "hidden" }}>
           <div style={{ background: T.primary, color: "#fff", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 13.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 7 }}><MessageSquare size={15} /> Support Chat</span>
             <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}><X size={15} /></button>
@@ -1620,8 +1625,8 @@ function ChatTab({ chats, setChats }) {
   }
 
   return (
-    <div style={{ display: "flex", gap: 20, height: 520 }}>
-      <div style={{ width: 260, background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div className="ss-chat-shell" style={{ display: "flex", gap: 20, height: 520 }}>
+      <div className="ss-chat-list" style={{ width: 260, flexShrink: 0, background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "14px 16px", borderBottom: `1px solid ${T.hair}`, fontWeight: 800, fontSize: 13 }}>Conversations</div>
         <div style={{ overflowY: "auto", flex: 1 }} className="ss-scroll">
           {chats.map((c) => (
@@ -1640,7 +1645,7 @@ function ChatTab({ chats, setChats }) {
           ))}
         </div>
       </div>
-      <div style={{ flex: 1, background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ flex: 1, minWidth: 0, background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {active ? (
           <>
             <div style={{ padding: "14px 18px", borderBottom: `1px solid ${T.hair}`, fontWeight: 800, fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
