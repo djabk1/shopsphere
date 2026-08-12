@@ -60,6 +60,9 @@ const FONT_CSS = `
   @media (max-width: 640px){
     .ss-store-search{ order:3; flex-basis:100%; max-width:none; }
     .ss-store-btn-label{ display:none; }
+    .ss-admin-sidebar{ width:64px !important; }
+    .ss-admin-sidebar-label{ display:none; }
+    .ss-admin-content-pad{ padding:16px !important; }
   }
   input[type=text]:focus, input[type=email]:focus, input[type=password]:focus, input[type=number]:focus, textarea:focus, select:focus{
     outline:none; box-shadow: 0 0 0 3px rgba(201,162,39,0.35); border-color:${T.primary} !important;
@@ -1022,7 +1025,7 @@ function AdminLogin({ onLogin, onBack }) {
       )}
 
       {/* Right / form panel */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
         <div className="ss-fade-in" style={{ width: 400, maxWidth: "100%" }}>
           {isMobile && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 22 }}>
@@ -1105,45 +1108,46 @@ function AdminApp(props) {
     { id: "ai", label: "AI Assistant", icon: Sparkles },
   ];
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <div style={{ width: 232, background: T.primaryDark, color: "#fff", display: "flex", flexDirection: "column", flexShrink: 0 }}>
+    <div className="ss-admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+      <style>{FONT_CSS}</style>
+      <div className="ss-admin-sidebar" style={{ width: 232, background: T.primaryDark, color: "#fff", display: "flex", flexDirection: "column", flexShrink: 0 }}>
         <div style={{ padding: "20px 18px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
-          <div className="ss-seal" style={{ width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}><ShoppingBag size={14} color="#fff" /></div>
-          <span className="ss-display" style={{ fontSize: 16.5, fontWeight: 700 }}>ShopSphere</span>
+          <div className="ss-seal" style={{ width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><ShoppingBag size={14} color="#fff" /></div>
+          <span className="ss-display ss-admin-sidebar-label" style={{ fontSize: 16.5, fontWeight: 700, whiteSpace: "nowrap" }}>ShopSphere</span>
         </div>
         <div style={{ flex: 1, padding: "14px 10px", overflowY: "auto" }} className="ss-scroll">
           {NAV.map((n) => (
-            <button key={n.id} onClick={() => setAdminTab(n.id)} className="ss-btn" style={{
+            <button key={n.id} onClick={() => setAdminTab(n.id)} className="ss-btn" title={n.label} style={{
               display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 12px", marginBottom: 3,
               borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, textAlign: "left",
               background: adminTab === n.id ? T.gold : "transparent", color: adminTab === n.id ? T.ink : "rgba(255,255,255,0.85)",
             }}>
-              <n.icon size={16} /> <span style={{ flex: 1 }}>{n.label}</span>
-              {!!n.badge && <span style={{ background: adminTab === n.id ? T.primaryDark : T.gold, color: adminTab === n.id ? "#fff" : T.ink, fontSize: 10.5, fontWeight: 800, borderRadius: 999, minWidth: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{n.badge}</span>}
+              <n.icon size={16} style={{ flexShrink: 0 }} /> <span className="ss-admin-sidebar-label" style={{ flex: 1, whiteSpace: "nowrap" }}>{n.label}</span>
+              {!!n.badge && <span className="ss-admin-sidebar-label" style={{ background: adminTab === n.id ? T.primaryDark : T.gold, color: adminTab === n.id ? "#fff" : T.ink, fontSize: 10.5, fontWeight: 800, borderRadius: 999, minWidth: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{n.badge}</span>}
             </button>
           ))}
         </div>
         <div style={{ padding: 14, borderTop: "1px solid rgba(255,255,255,0.12)" }}>
-          <button onClick={onViewStore} className="ss-btn" style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "transparent", color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>
-            <ShoppingBag size={14} /> View storefront
+          <button onClick={onViewStore} className="ss-btn" title="View storefront" style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "transparent", color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>
+            <ShoppingBag size={14} style={{ flexShrink: 0 }} /> <span className="ss-admin-sidebar-label" style={{ whiteSpace: "nowrap" }}>View storefront</span>
           </button>
-          <button onClick={onLogout} className="ss-btn" style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
-            <LogOut size={14} /> Log out
+          <button onClick={onLogout} className="ss-btn" title="Log out" style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+            <LogOut size={14} style={{ flexShrink: 0 }} /> <span className="ss-admin-sidebar-label" style={{ whiteSpace: "nowrap" }}>Log out</span>
           </button>
         </div>
       </div>
 
-      <div style={{ flex: 1, background: T.cream, overflowX: "hidden" }}>
-        <div style={{ padding: "16px 28px", borderBottom: `1px solid ${T.hair}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff" }}>
+      <div style={{ flex: 1, minWidth: 0, background: T.cream, overflowX: "hidden" }}>
+        <div style={{ padding: "16px 28px", borderBottom: `1px solid ${T.hair}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", flexWrap: "wrap", gap: 10 }}>
           <span style={{ fontSize: 15, fontWeight: 800, textTransform: "capitalize" }}>{adminTab.replace("-", " ")}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: T.sub }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.gold, display: "flex", alignItems: "center", justifyContent: "center", color: T.ink, fontSize: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: T.sub, flexShrink: 0 }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.gold, display: "flex", alignItems: "center", justifyContent: "center", color: T.ink, fontSize: 12, flexShrink: 0 }}>
               {(adminUser || "A")[0].toUpperCase()}
             </div>
             {adminUser || "Admin"}
           </div>
         </div>
-        <div style={{ padding: 28 }}>
+        <div style={{ padding: 28 }} className="ss-admin-content-pad">
           {adminTab === "dashboard" && <DashboardTab {...props} />}
           {adminTab === "products" && <ProductsTab {...props} />}
           {adminTab === "orders" && <OrdersTab {...props} />}
