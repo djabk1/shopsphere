@@ -54,6 +54,13 @@ const FONT_CSS = `
   @keyframes ssFadeIn{ from{ opacity:0; transform: translateY(6px);} to{opacity:1; transform:translateY(0);} }
   .ss-slide-in{ animation: ssSlideIn .28s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes ssSlideIn{ from{ transform: translateX(100%);} to{ transform: translateX(0);} }
+  .ss-store-header{ display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap; }
+  .ss-store-search{ flex:1 1 260px; max-width:460px; min-width:0; }
+  .ss-store-actions{ display:flex; align-items:center; gap:10px; margin-left:auto; }
+  @media (max-width: 640px){
+    .ss-store-search{ order:3; flex-basis:100%; max-width:none; }
+    .ss-store-btn-label{ display:none; }
+  }
   input[type=text]:focus, input[type=email]:focus, input[type=password]:focus, input[type=number]:focus, textarea:focus, select:focus{
     outline:none; box-shadow: 0 0 0 3px rgba(201,162,39,0.35); border-color:${T.primary} !important;
   }
@@ -376,27 +383,28 @@ function Stars({ rating, size = 12 }) {
 function StoreHeader({ cartCount, onCartClick, onAdminClick, search, setSearch }) {
   return (
     <div style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(250,246,236,0.92)", backdropFilter: "blur(6px)", borderBottom: `1px solid ${T.hair}` }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", gap: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="ss-seal" style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="ss-store-header" style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <div className="ss-seal" style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <ShoppingBag size={16} color="#fff" />
           </div>
-          <span className="ss-display" style={{ fontSize: 21, fontWeight: 700, color: T.ink }}>ShopSphere</span>
+          <span className="ss-display" style={{ fontSize: 21, fontWeight: 700, color: T.ink, whiteSpace: "nowrap" }}>ShopSphere</span>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 10, padding: "8px 12px", gap: 8, maxWidth: 460 }}>
-          <Search size={15} color={T.sub} />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products, SKU..." style={{ border: "none", outline: "none", fontSize: 13.5, flex: 1, background: "transparent" }} />
+        <div className="ss-store-actions">
+          <button onClick={onAdminClick} className="ss-btn" style={{ background: "transparent", border: `1px solid ${T.hair}`, borderRadius: 9, padding: "8px 14px", fontSize: 13, fontWeight: 700, color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <UserCog size={15} /> <span className="ss-store-btn-label">Admin</span>
+          </button>
+          <button onClick={onCartClick} className="ss-btn" style={{ background: T.primary, border: "none", borderRadius: 9, padding: "9px 16px", fontSize: 13.5, fontWeight: 700, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, position: "relative", flexShrink: 0 }}>
+            <ShoppingBag size={16} /> <span className="ss-store-btn-label">Cart</span>
+            {cartCount > 0 && (
+              <span style={{ background: T.gold, color: T.ink, borderRadius: 999, fontSize: 11, fontWeight: 800, minWidth: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{cartCount}</span>
+            )}
+          </button>
         </div>
-        <div style={{ flex: 1 }} />
-        <button onClick={onAdminClick} className="ss-btn" style={{ background: "transparent", border: `1px solid ${T.hair}`, borderRadius: 9, padding: "8px 14px", fontSize: 13, fontWeight: 700, color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-          <UserCog size={15} /> Admin
-        </button>
-        <button onClick={onCartClick} className="ss-btn" style={{ background: T.primary, border: "none", borderRadius: 9, padding: "9px 16px", fontSize: 13.5, fontWeight: 700, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
-          <ShoppingBag size={16} /> Cart
-          {cartCount > 0 && (
-            <span style={{ background: T.gold, color: T.ink, borderRadius: 999, fontSize: 11, fontWeight: 800, minWidth: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{cartCount}</span>
-          )}
-        </button>
+        <div className="ss-store-search" style={{ display: "flex", alignItems: "center", background: "#fff", border: `1px solid ${T.hair}`, borderRadius: 10, padding: "8px 12px", gap: 8 }}>
+          <Search size={15} color={T.sub} style={{ flexShrink: 0 }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products, SKU..." style={{ border: "none", outline: "none", fontSize: 13.5, flex: 1, background: "transparent", minWidth: 0 }} />
+        </div>
       </div>
     </div>
   );
