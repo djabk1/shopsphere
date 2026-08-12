@@ -157,10 +157,10 @@ const fmtId = (n) => "SPH-" + String(n).padStart(4, "0");
 ============================================================================ */
 async function askAI(messages, { maxTokens = 700, system } = {}) {
   // FREE LOCAL OPTION: Google Gemini has a genuine no-card free tier.
-  // If a Gemini key is present (set via window.__GEMINI_API_KEY__ — see setup notes),
+  // If a Gemini key is present (set via VITE_GEMINI_API_KEY in .env / Render env vars),
   // use it. Otherwise fall back to the keyless Claude call, which is free automatically
   // when this file runs inside the Claude.ai chat/artifact preview.
-  const geminiKey = (typeof window !== "undefined" && window.__GEMINI_API_KEY__) || null;
+  const geminiKey = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) || null;
 
   if (geminiKey) {
     const contents = messages.map((m) => ({
@@ -198,7 +198,7 @@ async function askAI(messages, { maxTokens = 700, system } = {}) {
   if (!response.ok) {
     throw new Error(
       `AI request failed (${response.status}). Outside this chat preview, set up a free Gemini key ` +
-      `(see setup notes) so window.__GEMINI_API_KEY__ is available.`
+      `(see setup notes) so VITE_GEMINI_API_KEY is available.`
     );
   }
   const data = await response.json();
